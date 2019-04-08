@@ -3,32 +3,29 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/adrianosela/middleman"
-	"github.com/adrianosela/sslmgr"
-	"github.com/gorilla/mux"
 )
 
 func main() {
-
-	h := middleman.Logger(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Im alive!"))
-	}))
-
-	rtr := mux.NewRouter()
-	rtr.Methods(http.MethodGet).Path("/healthcheck").Handler(h)
-
-	ss, err := sslmgr.NewSecureServer(sslmgr.ServerConfig{
-		Hostnames: []string{os.Getenv("CN_FOR_CERTIFICATE")},
-		Handler:   rtr,
-		ServeSSLFunc: func() bool {
-			return false
-		},
+	logger := middleman.NewLogger(middleman.LoggerConfig{
+		LogDuration:      true,
+		LogContentLength: true,
+		LogStatus:        true,
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	ss.ListenAndServe()
+
+	functional := middleman.NewFunctional(func() {
+		log.Println("doing X before the request was received")
+	}, func() {
+		log.Println("doing X after the request was fulfilled")
+	})
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hello World!"))
+	})
+
+	mm := middleman.NewMiddleman(logger, functional)
+
+	http.ListenAndServe(":80", mm.Wrap(h))
 }
