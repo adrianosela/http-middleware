@@ -27,7 +27,7 @@ func TestBasicAuthenticator(t *testing.T) {
 	wrappedHandler := ba.Wrap(mockHandler)
 	ts := httptest.NewServer(wrappedHandler)
 
-	Convey("Test BasicAuthenticator()", t, func() {
+	Convey("Test NewBasicAuthenticator()", t, func() {
 		Convey("Test NewBasicAuthenticator() - Proxies anonymous func's success", func() {
 			proxiedPass, err := ba.authenticate(mockAuthedUsername, mockAuthedPass)
 			So(proxiedPass, ShouldEqual, mockAuthedUsername)

@@ -8,11 +8,7 @@ import (
 )
 
 func main() {
-	logger := middleman.NewLogger(middleman.LoggerConfig{
-		LogDuration:      true,
-		LogContentLength: true,
-		LogStatus:        true,
-	})
+	logger := middleman.NewLogger(true, true, true)
 
 	functional := middleman.NewFunctional(func() {
 		log.Println("doing X before the request was received")
