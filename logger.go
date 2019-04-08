@@ -20,19 +20,12 @@ type Logger struct {
 	logStatus        bool
 }
 
-// LoggerConfig determines what the middleware will log
-type LoggerConfig struct {
-	LogDuration      bool
-	LogContentLength bool
-	LogStatus        bool
-}
-
 // NewLogger is the constructor for a Logger Middleware
-func NewLogger(c LoggerConfig) *Logger {
+func NewLogger(logDuration, logContentLength, logStatus bool) *Logger {
 	return &Logger{
-		logDuration:      c.LogDuration,
-		logContentLength: c.LogContentLength,
-		logStatus:        c.LogStatus,
+		logDuration:      logDuration,
+		logContentLength: logContentLength,
+		logStatus:        logStatus,
 	}
 }
 
