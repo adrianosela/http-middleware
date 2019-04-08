@@ -7,6 +7,10 @@ type Middleware interface {
 	Wrap(h http.Handler) http.Handler
 }
 
+// requestCtxKey is used by Middleware implementations to store
+// and retrieve data within the request context
+type requestCtxKey string
+
 // Middleman is a collection of Middleware to be applied to a handler
 type Middleman struct {
 	middleware []Middleware

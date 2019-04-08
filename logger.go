@@ -36,18 +36,18 @@ func NewLogger(c LoggerConfig) *Logger {
 	}
 }
 
-type statusWriter struct {
+type loggerResponseWriter struct {
 	http.ResponseWriter
 	status int
 	length int
 }
 
-func (w *statusWriter) WriteHeader(status int) {
+func (w *loggerResponseWriter) WriteHeader(status int) {
 	w.status = status
 	w.ResponseWriter.WriteHeader(status)
 }
 
-func (w *statusWriter) Write(b []byte) (int, error) {
+func (w *loggerResponseWriter) Write(b []byte) (int, error) {
 	n, err := w.ResponseWriter.Write(b)
 	w.length += n
 	return n, err
@@ -58,7 +58,7 @@ func (l *Logger) Wrap(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqid, _ := shortid.Generate()
 		start := time.Now().UnixNano()
-		sw := statusWriter{ResponseWriter: w}
+		sw := loggerResponseWriter{ResponseWriter: w}
 
 		logBefore := fmt.Sprintf("%s[%s] %s %s RECEIVED", loggerHeader, reqid, r.Method, r.URL.Path)
 		logAfter := fmt.Sprintf("%s[%s] COMPLETED", loggerHeader, reqid)
