@@ -1,8 +1,8 @@
 package middleman
 
 import (
+	"context"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,9 +14,7 @@ func TestBasicAuthenticator(t *testing.T) {
 	// tests setup
 	mockHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		// we will indirectly test  GetUname(r) by reading the
-		// return value off of the response body for requests to the test server
-		w.Write([]byte(GetUname(r)))
+		w.Write([]byte("Hello World!"))
 	})
 	mockAuthedUsername := "whitelisted"
 	mockAuthedPass := "whitelisted"
@@ -61,13 +59,10 @@ func TestBasicAuthenticator(t *testing.T) {
 		})
 	})
 	Convey("Test GetUname()", t, func() {
-		Convey("Test GetUname() - indirectly call GetUname()", func() {
+		Convey("Test GetUname() - read context value", func() {
 			baseReq, _ := http.NewRequest(http.MethodGet, ts.URL, nil)
-			baseReq.SetBasicAuth(mockAuthedUsername, mockAuthedPass)
-			resp, _ := http.DefaultClient.Do(baseReq)
-			respBytes, _ := ioutil.ReadAll(resp.Body)
-			So(resp.StatusCode, ShouldEqual, http.StatusOK)
-			So(string(respBytes), ShouldEqual, mockAuthedUsername)
+			baseReq = baseReq.WithContext(context.WithValue(baseReq.Context(), unameCtxKey, mockAuthedUsername))
+			So(GetUname(baseReq), ShouldEqual, mockAuthedUsername)
 		})
 	})
 }
